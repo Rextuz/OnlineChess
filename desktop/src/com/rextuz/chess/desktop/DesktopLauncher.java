@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		config.height = 800;
 		config.width = 480;
 		//config.resizable = false;
-		new LwjglApplication(new OnlineChess(), config);
+		new LwjglApplication(new OnlineChess("white"), config);
 	}
 
 }
