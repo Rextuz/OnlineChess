@@ -11,6 +11,16 @@ import com.rextuz.chess.pieces.Rook;
 public class Board {
 	Piece[][] pieces = new Piece[8][8];
 	String color;
+	int size;
+	private float x, y;
+
+	public void setX(float f) {
+		this.x = f;
+	}
+
+	public void setY(float f) {
+		this.y = f;
+	}
 
 	public Board(String color) {
 		this.color = color;
@@ -46,9 +56,35 @@ public class Board {
 			pieces[x][y] = new Pawn(x, y, foeColor);
 	}
 
+	public void setSize(int size) {
+		this.size = size;
+	}
+
 	public boolean empty(int x, int y) {
 		if (pieces[x][y] == null)
 			return true;
 		return false;
+	}
+
+	public Piece getPiece(float x, float y) {
+		x -= this.x;
+		y -= this.y;
+		for (int i = 0; i < 8; i++)
+			for (int j = 0; j < 8; j++)
+				if (pieces[i][j] != null)
+					if (x > pieces[i][j].getX() * pieces[i][j].getSize()
+							- pieces[i][j].getSize() / 2)
+						if (x < pieces[i][j].getX() * pieces[i][j].getSize()
+								+ pieces[i][j].getSize() / 2)
+							if (y > pieces[i][j].getY()
+									* pieces[i][j].getSize()
+									- pieces[i][j].getSize() / 2)
+								if (y < pieces[i][j].getY()
+										* pieces[i][j].getSize()
+										+ pieces[i][j].getSize() / 2) {
+									System.out.println(pieces[i][j].getX());
+									return pieces[i][j];
+								}
+		return null;
 	}
 }

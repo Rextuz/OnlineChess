@@ -2,6 +2,7 @@ package com.rextuz.chess;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -22,6 +23,18 @@ public class OnlineChess extends ApplicationAdapter {
 
 	@Override
 	public void create() {
+		Gdx.input.setInputProcessor(new InputAdapter() {
+			public boolean touchDown(int x, int y, int pointer, int button) {
+				System.out.println(x + " " + y + " " + pointer + " " + button);
+				board.getPiece(x, y);
+				return true;
+			}
+
+			public boolean touchUp(int x, int y, int pointer, int button) {
+				// your touch up code here
+				return true; // return true to indicate the event was handled
+			}
+		});
 		batch = new SpriteBatch();
 		img = new Texture("chess_board.png");
 		sboard = new Sprite(img);
@@ -53,6 +66,8 @@ public class OnlineChess extends ApplicationAdapter {
 			smaller = width;
 		else
 			smaller = height;
+		board.setX(sboard.getX());
+		board.setY(sboard.getY());
 		sboard.setSize(smaller, smaller);
 		sboard.setCenter(width / 2, height / 2);
 		for (int x = 0; x < 8; x++)
