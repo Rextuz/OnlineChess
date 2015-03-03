@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.rextuz.chess.Coords;
 
 public class Piece {
-	int x, y;
-	float size = 10;
-	Texture texture;
-	String color;
+	public int x, y;
+	public float size = 10;
+	public Texture texture;
+	private String color;
 
 	public Piece(int x, int y, String color) {
 		this.x = x;
@@ -37,5 +37,21 @@ public class Piece {
 
 	public void dispose() {
 		texture.dispose();
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public float getSize() {
+		return size;
+	}
+
+	public String getColor() {
+		return color;
 	}
 }
