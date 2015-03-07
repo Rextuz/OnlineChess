@@ -1,15 +1,17 @@
 package com.rextuz.chess.server;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.List;
 
-public interface ServerSend {
-	
-	public boolean login(String name);
+public interface ServerSend extends Remote {
 
-	public List<String> find(String name);
-	
-	public boolean connect(String name);
+	public boolean login(String name) throws RemoteException;
 
-	public boolean disconnect(String name);
-	
+	public List<String> find(String name) throws RemoteException;
+
+	public boolean connect(String name) throws RemoteException;
+
+	public boolean disconnect(String name) throws RemoteException;
+
 }
