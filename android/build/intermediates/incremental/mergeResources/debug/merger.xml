@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/home/rextuz/Документы/OnlineChess/android/res"><file name="ic_launcher" path="/home/rextuz/Документы/OnlineChess/android/res/drawable-mdpi/ic_launcher.png" qualifiers="mdpi-v4" type="drawable"/><file name="ic_launcher" path="/home/rextuz/Документы/OnlineChess/android/res/drawable-hdpi/ic_launcher.png" qualifiers="hdpi-v4" type="drawable"/><file name="ic_launcher" path="/home/rextuz/Документы/OnlineChess/android/res/drawable-xhdpi/ic_launcher.png" qualifiers="xhdpi-v4" type="drawable"/><file path="/home/rextuz/Документы/OnlineChess/android/res/values/styles.xml" qualifiers=""><style name="GdxTheme" parent="android:Theme">
+		<item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowFullscreen">true</item>
+    </style></file><file path="/home/rextuz/Документы/OnlineChess/android/res/values/strings.xml" qualifiers=""><string name="app_name">OnlineChess</string></file><file name="ic_launcher" path="/home/rextuz/Документы/OnlineChess/android/res/drawable-xxhdpi/ic_launcher.png" qualifiers="xxhdpi-v4" type="drawable"/><file name="chess_board" path="/home/rextuz/Документы/OnlineChess/android/res/drawable/chess_board.png" qualifiers="" type="drawable"/></source><source path="/home/rextuz/Документы/OnlineChess/android/build/generated/res/rs/debug"/><source path="/home/rextuz/Документы/OnlineChess/android/build/generated/res/generated/debug"/></dataSet><dataSet config="debug"><source path="/home/rextuz/Документы/OnlineChess/android/src/debug/res"/></dataSet><mergedItems/></merger>
