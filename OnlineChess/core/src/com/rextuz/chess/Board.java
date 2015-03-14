@@ -1,5 +1,9 @@
 package com.rextuz.chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.rextuz.chess.anim.Avalible;
 import com.rextuz.chess.pieces.Bishop;
 import com.rextuz.chess.pieces.King;
 import com.rextuz.chess.pieces.Knight;
@@ -10,6 +14,7 @@ import com.rextuz.chess.pieces.Rook;
 
 public class Board {
 	Piece[][] pieces = new Piece[8][8];
+	List<Avalible> moves = new ArrayList<Avalible>();
 	String color;
 	int size;
 	private float x, y;
@@ -82,7 +87,10 @@ public class Board {
 								if (y < pieces[i][j].getY()
 										* pieces[i][j].getSize()
 										+ pieces[i][j].getSize() / 2) {
-									System.out.println(pieces[i][j].getX());
+									System.out.println("("
+											+ pieces[i][j].getX() + ", "
+											+ pieces[i][j].getY() + ") "
+											+ pieces[i][j].getColor());
 									return pieces[i][j];
 								}
 		return null;

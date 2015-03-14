@@ -5,7 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
+import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -16,6 +19,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.rextuz.chess.OnlineChess;
 import com.rextuz.chess.server.ServerSend;
 
 public class OnlineChessGUI {
@@ -25,7 +31,12 @@ public class OnlineChessGUI {
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenu mnWindow;
-	private JButton btnFindGames;
+	private JComboBox<String> comboBox;
+	private Vector<String> games = new Vector<String>();
+	private DefaultComboBoxModel<String> model;
+	private OnlineChessGUI gui = this;
+	public String serverIP = "rextuz-pc";
+	public int PORT = 4242;
 
 	private String myName;
 
@@ -73,8 +84,6 @@ public class OnlineChessGUI {
 		JButton submitName = new JButton("Submit");
 		submitName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String serverIP = "rextuz-pc";
-				int PORT = 4242;
 				try {
 					Registry registry = LocateRegistry.getRegistry(serverIP,
 							PORT);
@@ -83,6 +92,7 @@ public class OnlineChessGUI {
 					if (stub.login(nameText.getText())) {
 						JOptionPane.showMessageDialog(frame, "Name accepted");
 						myName = nameText.getText();
+						new GameChecker(myName, gui);
 					} else
 						JOptionPane.showMessageDialog(frame,
 								"Name is already owned", "Error",
@@ -97,17 +107,25 @@ public class OnlineChessGUI {
 		submitName.setBounds(145, 11, 129, 45);
 		frame.getContentPane().add(submitName);
 
-		btnFindGames = new JButton("Find games");
-		btnFindGames.setBounds(10, 67, 125, 23);
-		frame.getContentPane().add(btnFindGames);
-
-		JComboBox comboBox = new JComboBox();
+		model = new DefaultComboBoxModel<String>(games);
+		comboBox = new JComboBox<String>(model);
 		comboBox.setBounds(10, 101, 125, 20);
 		frame.getContentPane().add(comboBox);
 
 		JButton btnJoin = new JButton("Join");
 		btnJoin.setBounds(145, 100, 129, 23);
 		frame.getContentPane().add(btnJoin);
+		btnJoin.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String foe = (String) comboBox.getSelectedItem();
+				LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+				config.title = "Title";
+				config.height = 800;
+				config.width = 480;
+				new LwjglApplication(new OnlineChess("white", myName, foe), config);
+			}
+		});
 
 		JButton btnJoinRandom = new JButton("Join random");
 		btnJoinRandom.setBounds(145, 67, 129, 23);
@@ -133,4 +151,11 @@ public class OnlineChessGUI {
 		JMenuItem mntmProperties = new JMenuItem("Properties");
 		mnWindow.add(mntmProperties);
 	}
+
+	public void addGame(List<String> names) {
+		model.removeAllElements();
+		for (String s : names)
+			model.addElement(s);
+	}
+
 }

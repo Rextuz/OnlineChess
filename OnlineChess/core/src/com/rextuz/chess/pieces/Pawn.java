@@ -11,7 +11,7 @@ import com.rextuz.chess.OnlineChess;
 public class Pawn extends Piece {
 
 	public Pawn(int x, int y, String color) {
-		super(x, y, color);
+		super(new Coords(x, y), color);
 		texture = new Texture("pawn_" + color + ".png");
 	}
 

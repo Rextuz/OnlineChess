@@ -1,5 +1,8 @@
 package com.rextuz.chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
@@ -8,6 +11,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.rextuz.chess.anim.Avalible;
+import com.rextuz.chess.pieces.Piece;
 
 public class OnlineChess extends ApplicationAdapter {
 	public static Board board;
@@ -15,18 +20,34 @@ public class OnlineChess extends ApplicationAdapter {
 	private Texture img;
 	private Sprite sboard;
 	private BitmapFont font;
-	private String color;
+	private String my_color;
+	private String myName;
+	private String foe;
 
-	public OnlineChess(String my_color) {
-		color = my_color;
+	public OnlineChess(String my_color, String myName, String foe) {
+		this.my_color = my_color;
+		this.myName = myName;
+		this.foe = foe;
 	}
 
 	@Override
 	public void create() {
 		Gdx.input.setInputProcessor(new InputAdapter() {
 			public boolean touchDown(int x, int y, int pointer, int button) {
-				System.out.println(x + " " + y + " " + pointer + " " + button);
-				board.getPiece(x, y);
+				Piece piece = board.getPiece(x, y);
+				if (piece != null) {
+					if (piece.getColor().equals(my_color)) {
+						List<Coords> moves = piece.moves();
+						List<Avalible> av = new ArrayList<Avalible>();
+						if (moves != null)
+							for (Coords c : moves)
+								av.add(new Avalible(c));
+						else
+							System.err.println(piece.x + " " + piece.y
+									+ " has null moves");
+						board.moves = av;
+					}
+				}
 				return true;
 			}
 
@@ -39,7 +60,7 @@ public class OnlineChess extends ApplicationAdapter {
 		img = new Texture("chess_board.png");
 		sboard = new Sprite(img);
 		font = new BitmapFont();
-		board = new Board(color);
+		board = new Board(my_color);
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	}
 
@@ -54,6 +75,8 @@ public class OnlineChess extends ApplicationAdapter {
 			for (int y = 0; y < 8; y++)
 				if (board.pieces[x][y] != null)
 					board.pieces[x][y].render(sboard);
+		for (Avalible a : board.moves)
+			a.render(sboard);
 		batch.end();
 	}
 

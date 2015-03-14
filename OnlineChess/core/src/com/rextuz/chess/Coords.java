@@ -12,4 +12,12 @@ public class Coords {
 		this.x = new_x;
 		this.y = new_y;
 	}
+	
+	public int getX() {
+		return x;
+	}
+	
+	public int getY() {
+		return y;
+	}
 }
