@@ -12,6 +12,12 @@ public class Piece {
 	public Texture texture;
 	private String color;
 
+	public Piece(Coords xy, String color) {
+		this.x = xy.getX();
+		this.y = xy.getY();
+		this.color = color;
+	}
+
 	public Piece(int x, int y, String color) {
 		this.x = x;
 		this.y = y;
