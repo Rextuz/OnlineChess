@@ -3,14 +3,18 @@ package com.rextuz.chess.desktop;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -27,27 +31,53 @@ import com.rextuz.chess.server.ServerSend;
 public class OnlineChessGUI {
 
 	private JFrame frame;
+	private JLabel lblProgress;
 	private JTextField nameText;
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenu mnWindow;
-	private JComboBox<String> comboBox;
-	private Vector<String> games = new Vector<String>();
-	private DefaultComboBoxModel<String> model;
-	private OnlineChessGUI gui = this;
-	public String serverIP = "rextuz-pc";
-	public int PORT = 4242;
-
+	private ServerSend server;
 	private String myName;
+	private boolean connected = false;
+	public String serverIP;
+	public int PORT;
 
-	/**
-	 * Launch the application.
-	 */
+	private class MyThread implements Runnable {
+		String host;
+		OnlineChessGUI gui;
+
+		public MyThread(String host, OnlineChessGUI gui) {
+			this.host = host;
+			this.gui = gui;
+		}
+
+		@Override
+		public void run() {
+			String[] array1 = host.split(":");
+			String hostname = array1[0];
+			int port = Integer.parseInt(array1[1]);
+			try {
+				Registry registry = LocateRegistry.getRegistry(hostname, port);
+				ServerSend stub = (ServerSend) registry.lookup("OnlineChess");
+				gui.server = stub;
+				gui.serverIP = hostname;
+				gui.PORT = port;
+				gui.connected = true;
+				System.out.println(hostname + ":" + port + " connected.");
+			} catch (Exception e) {
+				System.out.println(hostname + ":" + port + " is unreachable");
+			}
+
+		}
+	}
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					OnlineChessGUI window = new OnlineChessGUI();
+					if (!window.connected)
+						window.kill();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -56,43 +86,63 @@ public class OnlineChessGUI {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
-	public OnlineChessGUI() {
+	public OnlineChessGUI() throws IOException, InterruptedException {
+		findHost();
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
+	private void findHost() throws IOException, InterruptedException {
+		BufferedReader bufRead = new BufferedReader(new FileReader("hosts.cfg"));
+		String host;
+		List<Thread> hosts = new ArrayList<Thread>();
+		while ((host = bufRead.readLine()) != null) {
+			MyThread thread = new MyThread(host, this);
+			hosts.add(new Thread(thread));
+		}
+		for (Thread t : hosts)
+			t.start();
+		for (Thread t : hosts)
+			t.join();
+		bufRead.close();
+	}
+
 	private void initialize() {
 		frame = new JFrame();
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+					if (connected)
+						try {
+							if (server.disconnect(myName))
+								System.out.println("Disconnected successfully");
+						} catch (RemoteException e1) {
+							e1.printStackTrace();
+						}
+				}
+			}
+		});
 		frame.setBounds(100, 100, 300, 200);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
 		JLabel lblPickAUsername = new JLabel("Pick a username");
-		lblPickAUsername.setBounds(10, 11, 125, 14);
+		lblPickAUsername.setBounds(10, 12, 133, 14);
 		frame.getContentPane().add(lblPickAUsername);
 
 		nameText = new JTextField();
-		nameText.setBounds(10, 36, 125, 20);
+		nameText.setBounds(161, 10, 125, 20);
 		frame.getContentPane().add(nameText);
 		nameText.setColumns(10);
 
-		JButton submitName = new JButton("Submit");
+		JButton submitName = new JButton("Submit and connect");
 		submitName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					Registry registry = LocateRegistry.getRegistry(serverIP,
-							PORT);
-					ServerSend stub = (ServerSend) registry
-							.lookup("OnlineChess");
-					if (stub.login(nameText.getText())) {
+					if (server.login(nameText.getText())) {
 						JOptionPane.showMessageDialog(frame, "Name accepted");
 						myName = nameText.getText();
-						new GameChecker(myName, gui);
+						matchMake();
 					} else
 						JOptionPane.showMessageDialog(frame,
 								"Name is already owned", "Error",
@@ -104,32 +154,12 @@ public class OnlineChessGUI {
 				}
 			}
 		});
-		submitName.setBounds(145, 11, 129, 45);
+		submitName.setBounds(10, 38, 276, 20);
 		frame.getContentPane().add(submitName);
 
-		model = new DefaultComboBoxModel<String>(games);
-		comboBox = new JComboBox<String>(model);
-		comboBox.setBounds(10, 101, 125, 20);
-		frame.getContentPane().add(comboBox);
-
-		JButton btnJoin = new JButton("Join");
-		btnJoin.setBounds(145, 100, 129, 23);
-		frame.getContentPane().add(btnJoin);
-		btnJoin.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String foe = (String) comboBox.getSelectedItem();
-				LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-				config.title = "Title";
-				config.height = 800;
-				config.width = 480;
-				new LwjglApplication(new OnlineChess("white", myName, foe), config);
-			}
-		});
-
-		JButton btnJoinRandom = new JButton("Join random");
-		btnJoinRandom.setBounds(145, 67, 129, 23);
-		frame.getContentPane().add(btnJoinRandom);
+		lblProgress = new JLabel("");
+		lblProgress.setBounds(10, 68, 276, 74);
+		frame.getContentPane().add(lblProgress);
 
 		menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -152,10 +182,28 @@ public class OnlineChessGUI {
 		mnWindow.add(mntmProperties);
 	}
 
-	public void addGame(List<String> names) {
-		model.removeAllElements();
-		for (String s : names)
-			model.addElement(s);
+	public void kill() {
+		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 	}
 
+	private void matchMake() throws RemoteException, InterruptedException {
+		String foe = null;
+		boolean found = false;
+		do {
+			List<String> list = server.find(myName);
+			if (list.isEmpty())
+				foe = server.search(myName);
+			else
+				foe = server.connect(myName);
+			if (foe != null) {
+				LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+				config.title = "Online Chess";
+				config.height = 800;
+				config.width = 480;
+				new LwjglApplication(new OnlineChess("white", myName, foe),
+						config);
+			}
+			Thread.sleep(1000);
+		} while (!found);
+	}
 }
