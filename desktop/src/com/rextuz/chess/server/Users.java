@@ -8,6 +8,7 @@ public class Users {
 
 	private class User {
 		private String name;
+		private String foe = null;
 
 		private User(String name) {
 			this.name = name;
@@ -15,6 +16,14 @@ public class Users {
 
 		public String getName() {
 			return name;
+		}
+
+		public String getFoe() {
+			return foe;
+		}
+
+		public void setFoe(String foe) {
+			this.foe = foe;
 		}
 
 	}
@@ -35,6 +44,7 @@ public class Users {
 		for (int i = 0; i < users.size(); i++)
 			if (users.get(i).getName().equals(name)) {
 				users.remove(i);
+				return true;
 			}
 		return false;
 	}
@@ -52,4 +62,13 @@ public class Users {
 				return user;
 		return null;
 	}
+
+	public void setFoe(String name, String foe) {
+		getUser(name).setFoe(foe);
+	}
+
+	public String getFoe(String name) {
+		return getUser(name).getFoe();
+	}
+
 }
