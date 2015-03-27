@@ -1,5 +1,7 @@
 package com.rextuz.chess;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,14 +17,15 @@ import com.rextuz.chess.pieces.Piece;
 import com.rextuz.chess.pieces.Queen;
 import com.rextuz.chess.pieces.Rook;
 
-public class Board {
+public class Board extends UnicastRemoteObject {
+	private static final long serialVersionUID = 1L;
 	public Pieces pieces = new Pieces();
 	public List<Avalible> moves = new ArrayList<Avalible>();
 	private String color;
 	private Sprite sprite;
 	private Texture texture;
 
-	public Board(String color) {
+	public Board(String color) throws RemoteException {
 		texture = new Texture("chess_board.png");
 		sprite = new Sprite(texture);
 

@@ -77,4 +77,11 @@ public class Piece {
 		return sprite.getY();
 	}
 
+	protected boolean valid(int x, int y) {
+		if (x > -1 && x < 8)
+			if (y > -1 && y < 8)
+				return true;
+		return false;
+	}
+	
 }
