@@ -20,18 +20,18 @@ public class Pawn extends Piece {
 		List<Avalible> list = new ArrayList<Avalible>();
 		if (y == 1)
 			if (OnlineChess.board.cellEmpty(x, y + 2))
-				list.add(new Avalible(x, y + 2, size, board, 0));
+				list.add(new Avalible(x, y + 2, board, 0));
 		if (y + 1 < 8) {
 			if (OnlineChess.board.cellEmpty(x, y + 1))
-				list.add(new Avalible(x, y + 1, size, board, 0));
+				list.add(new Avalible(x, y + 1, board, 0));
 			if (x - 1 > -1)
 				if (!OnlineChess.board.cellEmpty(x - 1, y + 1))
 					if (!getColor(x - 1, y + 1).equals(color))
-						list.add(new Avalible(x - 1, y + 1, size, board, 1));
+						list.add(new Avalible(x - 1, y + 1, board, 1));
 			if (x + 1 < 8)
 				if (!OnlineChess.board.cellEmpty(x + 1, y + 1))
 					if (!getColor(x + 1, y + 1).equals(color))
-						list.add(new Avalible(x + 1, y + 1, size, board, 1));
+						list.add(new Avalible(x + 1, y + 1, board, 1));
 		}
 		return list;
 	}

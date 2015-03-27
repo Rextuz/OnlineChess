@@ -7,7 +7,9 @@ import com.rextuz.chess.Board;
 
 public interface MatchServerInterface extends Remote {
 
-	public boolean move(String user, Board board, int x, int y, int x1, int y1)
+	public void move(String user, Board board, int x, int y, int x1, int y1)
 			throws RemoteException;
+	
+	public void wait(String user) throws RemoteException;
 
 }
