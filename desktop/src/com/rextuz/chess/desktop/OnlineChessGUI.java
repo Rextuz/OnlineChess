@@ -26,7 +26,7 @@ import javax.swing.JTextField;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.rextuz.chess.OnlineChess;
-import com.rextuz.chess.server.ServerSend;
+import com.rextuz.chess.server.AuthServerInterface;
 
 public class OnlineChessGUI {
 
@@ -36,7 +36,7 @@ public class OnlineChessGUI {
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenu mnWindow;
-	private ServerSend server;
+	private AuthServerInterface server;
 	private String myName;
 	private boolean connected = false;
 	public String serverIP;
@@ -58,7 +58,7 @@ public class OnlineChessGUI {
 			int port = Integer.parseInt(array1[1]);
 			try {
 				Registry registry = LocateRegistry.getRegistry(hostname, port);
-				ServerSend stub = (ServerSend) registry.lookup("OnlineChess");
+				AuthServerInterface stub = (AuthServerInterface) registry.lookup("OnlineChess");
 				gui.server = stub;
 				gui.serverIP = hostname;
 				gui.PORT = port;

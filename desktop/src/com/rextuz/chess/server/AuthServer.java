@@ -11,38 +11,21 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Random;
 
-public class Server extends UnicastRemoteObject implements ServerSend {
+public class AuthServer extends UnicastRemoteObject implements AuthServerInterface {
 	private static final long serialVersionUID = 1L;
 	private Users users;
 	private Users searching;
 	private static int PORT;
 
-	public Server() throws IOException {
+	public AuthServer() throws IOException {
 		PORT = getPort();
 		users = new Users();
 		searching = new Users();
 	}
 
-	private int getPort() throws IOException {
-		BufferedReader bufRead = new BufferedReader(new FileReader("hosts.cfg"));
-		String host;
-		int port = 0;
-		String hostname;
-		InetAddress addr;
-		addr = InetAddress.getLocalHost();
-		hostname = addr.getHostName();
-		while ((host = bufRead.readLine()) != null) {
-			String[] array1 = host.split(":");
-			if (array1[0].equals(hostname))
-				port = Integer.parseInt(array1[1]);
-		}
-		bufRead.close();
-		return port;
-	}
-
 	public static void main(String[] args) throws RemoteException {
 		try {
-			Server server = new Server();
+			AuthServer server = new AuthServer();
 			Registry registry = LocateRegistry.createRegistry(PORT);
 			registry.bind("OnlineChess", server);
 			System.out.print("Server is ready");
@@ -92,6 +75,23 @@ public class Server extends UnicastRemoteObject implements ServerSend {
 			foe = searching.getFoe(name);
 		}
 		return foe;
+	}
+
+	private int getPort() throws IOException {
+		BufferedReader bufRead = new BufferedReader(new FileReader("hosts.cfg"));
+		String host;
+		int port = 0;
+		String hostname;
+		InetAddress addr;
+		addr = InetAddress.getLocalHost();
+		hostname = addr.getHostName();
+		while ((host = bufRead.readLine()) != null) {
+			String[] array1 = host.split(":");
+			if (array1[0].equals(hostname))
+				port = Integer.parseInt(array1[1]);
+		}
+		bufRead.close();
+		return port;
 	}
 
 }

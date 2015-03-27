@@ -3,6 +3,9 @@ package com.rextuz.chess;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.rextuz.chess.anim.Avalible;
 import com.rextuz.chess.pieces.Bishop;
 import com.rextuz.chess.pieces.King;
@@ -13,86 +16,131 @@ import com.rextuz.chess.pieces.Queen;
 import com.rextuz.chess.pieces.Rook;
 
 public class Board {
-	Piece[][] pieces = new Piece[8][8];
-	List<Avalible> moves = new ArrayList<Avalible>();
-	String color;
-	int size;
-	private float x, y;
-
-	public void setX(float f) {
-		this.x = f;
-	}
-
-	public void setY(float f) {
-		this.y = f;
-	}
+	public Pieces pieces = new Pieces();
+	public List<Avalible> moves = new ArrayList<Avalible>();
+	private String color;
+	private Sprite sprite;
+	private Texture texture;
 
 	public Board(String color) {
+		texture = new Texture("chess_board.png");
+		sprite = new Sprite(texture);
+
 		this.color = color;
-		String foeColor;
-		if (color.equals("white"))
-			foeColor = "black";
-		else
-			foeColor = "white";
-		for (int i = 0; i < 8; i++)
-			for (int j = 0; j < 8; j++)
-				pieces[i][j] = null;
-		// Allies
-		pieces[0][0] = new Rook(0, 0, color);
-		pieces[7][0] = new Rook(7, 0, color);
-		pieces[1][0] = new Knight(1, 0, color);
-		pieces[6][0] = new Knight(6, 0, color);
-		pieces[2][0] = new Bishop(2, 0, color);
-		pieces[5][0] = new Bishop(5, 0, color);
-		pieces[3][0] = new Queen(3, 0, color);
-		pieces[4][0] = new King(4, 0, color);
+
+		pieces.add(new Rook(0, 0, "white", this));
+		pieces.add(new Rook(7, 0, "white", this));
+		pieces.add(new Knight(1, 0, "white", this));
+		pieces.add(new Knight(6, 0, "white", this));
+		pieces.add(new Bishop(2, 0, "white", this));
+		pieces.add(new Bishop(5, 0, "white", this));
+		pieces.add(new Queen(3, 0, "white", this));
+		pieces.add(new King(4, 0, "white", this));
 		for (int x = 0, y = 1; x < 8; x++)
-			pieces[x][y] = new Pawn(x, y, color);
-		// Foes
-		pieces[0][7] = new Rook(0, 7, foeColor);
-		pieces[7][7] = new Rook(7, 7, foeColor);
-		pieces[1][7] = new Knight(1, 7, foeColor);
-		pieces[6][7] = new Knight(6, 7, foeColor);
-		pieces[2][7] = new Bishop(2, 7, foeColor);
-		pieces[5][7] = new Bishop(5, 7, foeColor);
-		pieces[3][7] = new Queen(3, 7, foeColor);
-		pieces[4][7] = new King(4, 7, foeColor);
+			pieces.add(new Pawn(x, y, "white", this));
+
+		pieces.add(new Rook(0, 7, "black", this));
+		pieces.add(new Rook(7, 7, "black", this));
+		pieces.add(new Knight(1, 7, "black", this));
+		pieces.add(new Knight(6, 7, "black", this));
+		pieces.add(new Bishop(2, 7, "black", this));
+		pieces.add(new Bishop(5, 7, "black", this));
+		pieces.add(new Queen(3, 7, "black", this));
+		pieces.add(new King(4, 7, "black", this));
 		for (int x = 0, y = 6; x < 8; x++)
-			pieces[x][y] = new Pawn(x, y, foeColor);
+			pieces.add(new Pawn(x, y, "black", this));
 	}
 
-	public void setSize(int size) {
-		this.size = size;
+	public void setSize(float size) {
+		sprite.setSize(size, size);
 	}
 
-	public boolean empty(int x, int y) {
-		if (pieces[x][y] == null)
+	public boolean cellEmpty(int x, int y) {
+		if (pieces.isNull(x, y))
 			return true;
 		return false;
 	}
 
-	public Piece getPiece(float x, float y) {
-		x -= this.x;
-		y -= this.y;
-		for (int i = 0; i < 8; i++)
-			for (int j = 0; j < 8; j++)
-				if (pieces[i][j] != null)
-					if (x > pieces[i][j].getX() * pieces[i][j].getSize()
-							- pieces[i][j].getSize() / 2)
-						if (x < pieces[i][j].getX() * pieces[i][j].getSize()
-								+ pieces[i][j].getSize() / 2)
-							if (y > pieces[i][j].getY()
-									* pieces[i][j].getSize()
-									- pieces[i][j].getSize() / 2)
-								if (y < pieces[i][j].getY()
-										* pieces[i][j].getSize()
-										+ pieces[i][j].getSize() / 2) {
-									System.out.println("("
-											+ pieces[i][j].getX() + ", "
-											+ pieces[i][j].getY() + ") "
-											+ pieces[i][j].getColor());
-									return pieces[i][j];
-								}
+	public Piece getPieceByReal(float x, float y) {
+		for (Piece p : pieces)
+			if (x > p.getRealX() && x < p.getRealX() + sprite.getWidth() / 8)
+				if (y > p.getRealY()
+						&& y < p.getRealY() + sprite.getHeight() / 8)
+					return p;
 		return null;
 	}
+
+	public Piece getPiece(int x, int y) {
+		return pieces.get(x, y);
+	}
+
+	public float getX() {
+		return sprite.getX();
+	}
+
+	public float getY() {
+		return sprite.getY();
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public float getSize() {
+		return sprite.getWidth();
+	}
+
+	public static void log(Object s) {
+		try {
+			System.out.println(s.toString());
+		} catch (Exception e) {
+			System.out.println("null");
+		}
+	}
+
+	public static String log(float x, float y) {
+		String s = "(" + x + ", " + y + ")";
+		System.out.println(s);
+		return s;
+	}
+
+	public static void log(Piece p) {
+		System.out.println("Name: " + p.getClass().getSimpleName());
+		System.out.println("Color: " + p.getColor());
+		System.out.println("Place: " + log(p.getX(), p.getY()));
+		System.out.print("Moves: ");
+		if (!p.moves().isEmpty())
+			for (Avalible a : p.moves())
+				System.out.print("(" + a.getX() + ", " + a.getY() + ") ");
+		else
+			System.out.print("none");
+		System.out.println();
+	}
+
+	public int getVirtX(float x) {
+		int a = (int) sprite.getWidth() / 8;
+		return (int) x / a;
+	}
+
+	public int getVirtY(float y) {
+		int a = (int) sprite.getHeight() / 8;
+		return (int) y / a - 2;
+	}
+
+	public void render(SpriteBatch batch) {
+		sprite.draw(batch);
+	}
+
+	public void setCenter(int x, int y) {
+		sprite.setCenter(x, y);
+	}
+
+	public void dispose() {
+		texture.dispose();
+	}
+
 }
