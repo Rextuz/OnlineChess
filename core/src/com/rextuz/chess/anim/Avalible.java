@@ -1,38 +1,22 @@
 package com.rextuz.chess.anim;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.rextuz.chess.Coords;
-import com.rextuz.chess.OnlineChess;
+import com.rextuz.chess.Board;
+import com.rextuz.chess.pieces.Piece;
 
-public class Avalible {
-	
-	private Texture texture;
-	private int size = 10;
-	private int x, y;
-	
-	public Avalible(int x, int y) {
+public class Avalible extends Piece {
+
+	public Avalible(int x, int y, float size, Board board, int a) {
+		super(x, y, "avalible", board);
 		this.x = x;
 		this.y = y;
+		this.size = size;
 		texture = new Texture("avalible.png");
+		if (a != 0)
+			texture = new Texture("attack.png");
 	}
 
-	public Avalible(Coords c) {
-		this.x = c.getX();
-		this.y = c.getY();
-		texture = new Texture("avalible.png");
+	public int[] getCoords() {
+		return new int[] { x, y };
 	}
-
-	public void render(Sprite board) {
-		Sprite sprite = new Sprite(texture);
-		sprite.setSize(size, size);
-		sprite.setX(board.getX() + size * x);
-		sprite.setY(board.getY() + size * y);
-		sprite.draw(OnlineChess.batch);
-	}
-	
-	public void dispose() {
-		texture.dispose();
-	}
-	
 }

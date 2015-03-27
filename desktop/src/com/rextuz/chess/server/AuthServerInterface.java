@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public interface ServerSend extends Remote {
+public interface AuthServerInterface extends Remote {
 
 	public boolean login(String name) throws RemoteException;
 
