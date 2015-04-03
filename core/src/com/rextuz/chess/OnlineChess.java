@@ -1,8 +1,6 @@
 package com.rextuz.chess;
 
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.List;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -10,7 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.rextuz.chess.anim.Avalible;
+import com.rextuz.chess.anim.Available;
 import com.rextuz.chess.pieces.Piece;
 import com.rextuz.chess.server.MatchServer;
 import com.rextuz.chess.server.MatchServerInterface;
@@ -31,29 +29,13 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 
 	@Override
 	public void create() {
-		try {
-			MatchServer server = new MatchServer();
-			Registry myRegistry = LocateRegistry.getRegistry(4242);
-			myRegistry.bind("OnlineChess" + myName, server);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (my_color.equals("white")) {
+			try {
+				MatchServer server = new MatchServer(myName, foeName);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		
-		Registry registry;
-		try {
-			registry = LocateRegistry.getRegistry("Lenovo-Y480", 4242);
-			stub = (MatchServerInterface) registry.lookup("OnlineChess"
-					+ foeName);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		Gdx.input.setInputProcessor(new InputAdapter() {
 			public boolean touchDown(int x, int y, int pointer, int button) {
 				y = Gdx.graphics.getHeight() - y;
@@ -62,7 +44,7 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 					if (pS != null) {
 						Board.log(pS);
 						if (pS.getColor().equals(my_color)) {
-							List<Avalible> moves = pS.moves();
+							List<Available> moves = pS.moves();
 							if (moves.isEmpty())
 								pS = null;
 							board.moves = moves;
@@ -72,15 +54,9 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 				} else {
 					int vx = board.getVirtX(x);
 					int vy = board.getVirtY(y);
-					for (Avalible a : board.moves)
+					for (Available a : board.moves)
 						if (a.getX() == vx && a.getY() == vy) {
 							pS.move(vx, vy, board);
-							try {
-								stub.move(foeName, board, pS.getX(),
-										pS.getY(), vx, vy);
-							} catch (RemoteException e) {
-								e.printStackTrace();
-							}
 						}
 					pS = null;
 					board.moves.clear();
@@ -109,7 +85,7 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 		board.render(batch);
 		for (Piece p : board.pieces)
 			p.render(board);
-		for (Avalible a : board.moves)
+		for (Available a : board.moves)
 			a.render(board);
 		batch.end();
 	}
@@ -128,7 +104,7 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 		board.setCenter(width / 2, height / 2);
 		for (Piece p : board.pieces)
 			p.setSize(smaller / 8);
-		for (Avalible a : board.moves)
+		for (Available a : board.moves)
 			a.setSize(smaller / 8);
 	}
 
@@ -138,7 +114,7 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 		board.dispose();
 		for (Piece p : board.pieces)
 			p.dispose();
-		for (Avalible a : board.moves)
+		for (Available a : board.moves)
 			a.dispose();
 	}
 

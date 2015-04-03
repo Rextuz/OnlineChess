@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.rextuz.chess.Board;
 import com.rextuz.chess.OnlineChess;
-import com.rextuz.chess.anim.Avalible;
+import com.rextuz.chess.anim.Available;
 
 public class Piece {
 	protected int x, y;
@@ -24,8 +24,8 @@ public class Piece {
 		this.board = board;
 	}
 
-	public List<Avalible> moves() {
-		List<Avalible> list = new ArrayList<Avalible>();
+	public List<Available> moves() {
+		List<Available> list = new ArrayList<Available>();
 		return list;
 	}
 
