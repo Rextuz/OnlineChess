@@ -5,18 +5,18 @@ import java.util.List;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.rextuz.chess.Board;
-import com.rextuz.chess.anim.Avalible;
+import com.rextuz.chess.anim.Available;
 
 public class Knight extends Piece {
 
 	public Knight(int x, int y, String color, Board board) {
 		super(x, y, color, board);
-		texture = new Texture("knight_" + color + ".png");
+		texture = new Texture("assets/knight_" + color + ".png");
 	}
 
 	@Override
-	public List<Avalible> moves() {
-		List<Avalible> list = new ArrayList<Avalible>();
+	public List<Available> moves() {
+		List<Available> list = new ArrayList<Available>();
 
 		List<int[]> pMoves = new ArrayList<int[]>();
 		pMoves.add(new int[] { x + 2, y + 1 });
@@ -33,9 +33,9 @@ public class Knight extends Piece {
 			int yt = c[1];
 			if (valid(xt, yt))
 				if (board.cellEmpty(xt, yt))
-					list.add(new Avalible(xt, yt, board, 0));
+					list.add(new Available(xt, yt, board, 0));
 				else if (!board.pieces.get(xt, yt).getColor().equals(color))
-					list.add(new Avalible(xt, yt, board, 1));
+					list.add(new Available(xt, yt, board, 1));
 		}
 		return list;
 	}
