@@ -6,14 +6,14 @@ import java.util.List;
 
 public interface AuthServerInterface extends Remote {
 
-	public boolean login(String name) throws RemoteException;
+    boolean login(String name) throws RemoteException;
 
-	public String search(String name) throws RemoteException;
+    String search(String name) throws RemoteException;
 
-	public List<String> find(String name) throws RemoteException;
+    List<String> find(String name) throws RemoteException;
 
-	public String connect(String name) throws RemoteException;
+    String connect(String name) throws RemoteException;
 
-	public boolean disconnect(String name) throws RemoteException;
+    boolean disconnect(String name) throws RemoteException;
 
 }

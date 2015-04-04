@@ -28,14 +28,14 @@ public class OnlineChess extends ApplicationAdapter implements ClientRemote {
 	}
 
 	@Override
-	public void create() {
+	public void create() {/*
 		if (my_color.equals("white")) {
 			try {
 				MatchServer server = new MatchServer(myName, foeName);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 		Gdx.input.setInputProcessor(new InputAdapter() {
 			public boolean touchDown(int x, int y, int pointer, int button) {
 				y = Gdx.graphics.getHeight() - y;
