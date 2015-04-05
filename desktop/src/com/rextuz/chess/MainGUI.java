@@ -3,6 +3,7 @@ package com.rextuz.chess;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.rextuz.chess.server.AuthServerInterface;
+import com.rextuz.chess.server.MatchServerInterface;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,7 @@ import java.rmi.registry.Registry;
 public class MainGUI extends JFrame {
 
     private AuthServerInterface stub;
+    private MatchServerInterface stub2;
 
     private JTextField addressTextField;
     private JButton connectButton;
@@ -55,6 +57,8 @@ public class MainGUI extends JFrame {
                 try {
                     Registry registry = LocateRegistry.getRegistry(hostname, port);
                     stub = (AuthServerInterface) registry.lookup("OnlineChess");
+                    registry = LocateRegistry.getRegistry(hostname, port + 1);
+                    stub2 = (MatchServerInterface) registry.lookup("MatchServer");
                     statusLabel2.setText("connected");
                     statusLabel2.setForeground(Color.green);
                     addressTextField.setEnabled(false);
@@ -149,16 +153,19 @@ public class MainGUI extends JFrame {
             @Override
             public void run() {
                 try {
-                    String foe;
+                    String foeName;
                     String myName = usernameTextField.getText();
-                    boolean found = false;
                     do {
                         java.util.List<String> list = stub.find(myName);
-                        if (list.isEmpty())
-                            foe = stub.search(myName);
-                        else
-                            foe = stub.connect(myName);
-                        if (foe != null) {
+                        String myColor;
+                        if (list.isEmpty()) {
+                            foeName = stub.search(myName);
+                            myColor = "white";
+                        } else {
+                            foeName = stub.connect(myName);
+                            myColor = "black";
+                        }
+                        if (foeName != null) {
                             progressBar.setVisible(false);
                             progressInfo.setText("Ready!");
                             Thread.sleep(2000);
@@ -167,12 +174,13 @@ public class MainGUI extends JFrame {
                             config.title = "Online Chess";
                             config.height = 800;
                             config.width = 480;
-                            new LwjglApplication(new OnlineChess("white", myName, foe, hostname, port),
+                            new LwjglApplication(new OnlineChess(myColor, myName, foeName, stub2),
                                     config);
-
+                            stub.remove(myName);
                         }
                         Thread.sleep(1000);
-                    } while (!found);
+                        return;
+                    } while (true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -7,40 +7,27 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.rextuz.chess.anim.Available;
 import com.rextuz.chess.pieces.Piece;
-import com.rextuz.chess.server.MoveOrder;
+import com.rextuz.chess.server.MatchServerInterface;
+import com.rextuz.chess.server.Move;
 
-import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.List;
 
 public class OnlineChess extends ApplicationAdapter {
     public static Board board;
     public static SpriteBatch batch;
+    private MatchServerInterface stub;
     private String my_color;
     private Piece pS;
     private String myName, foeName;
-    private String hostname;
-    private int port;
+    private boolean myTurn;
 
-
-    public OnlineChess(String my_color, String myName, String foeName, String hostname, int port) {
+    public OnlineChess(String my_color, String myName, String foeName, MatchServerInterface stub) {
+        myTurn = my_color.equals("white");
         this.my_color = my_color;
         this.myName = myName;
         this.foeName = foeName;
-        this.hostname = hostname;
-        this.port = port;
-
-        register();
-    }
-
-    private void register() {
-        try {
-            Socket s = new Socket(hostname, port);
-            byte[] b = myName.getBytes();
-            s.getOutputStream().write(b);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.stub = stub;
     }
 
     @Override
@@ -48,31 +35,41 @@ public class OnlineChess extends ApplicationAdapter {
         Gdx.input.setInputProcessor(new InputAdapter() {
             public boolean touchDown(int x, int y, int pointer, int button) {
                 y = Gdx.graphics.getHeight() - y;
-                if (pS == null) {
-                    pS = board.getPieceByReal(x, y);
-                    if (pS != null) {
-                        Board.log(pS);
-                        if (pS.getColor().equals(my_color)) {
-                            List<Available> moves = pS.moves();
-                            if (moves.isEmpty())
+                Board.log(board.getVirtX(x), board.getVirtY(y));
+                if (myTurn) {
+                    if (pS == null) {
+                        pS = board.getPieceByReal(x, y);
+                        if (pS != null) {
+                            if (pS.getColor().equals(my_color)) {
+                                List<Available> moves = pS.moves();
+                                if (moves.isEmpty())
+                                    pS = null;
+                                board.moves = moves;
+                            } else
                                 pS = null;
-                            board.moves = moves;
-                        } else
-                            pS = null;
-                    }
-                } else {
-                    int vx = board.getVirtX(x);
-                    int vy = board.getVirtY(y);
-                    for (Available a : board.moves)
-                        if (a.getX() == vx && a.getY() == vy) {
-                            pS.move(vx, vy, board);
-                            new MoveOrder(foeName, pS.getX(), pS.getY(), vx, vy, hostname, port);
                         }
-                    pS = null;
-                    board.moves.clear();
+                    } else {
+                        int x1 = pS.getX();
+                        int y1 = pS.getY();
+                        int x2 = board.getVirtX(x);
+                        int y2 = board.getVirtY(y);
+                        for (Available a : board.moves)
+                            if (a.getX() == x2 && a.getY() == y2) {
+                                pS.move(x2, y2, board);
+                                try {
+                                    stub.move(new Move(foeName, x1, y1, x2, y2));
+                                    myTurn = false;
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        pS = null;
+                        board.moves.clear();
+                    }
                 }
                 return true;
             }
+
 
             public boolean touchUp(int x, int y, int pointer, int button) {
                 return true;
@@ -85,6 +82,19 @@ public class OnlineChess extends ApplicationAdapter {
             e.printStackTrace();
         }
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        moveFoe(stub.getMove(myName));
+                        myTurn = true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -109,7 +119,6 @@ public class OnlineChess extends ApplicationAdapter {
             smaller = width;
         else
             smaller = height;
-        // board.setCenter(width / 2, height / 2);
         board.setSize(smaller);
         board.setCenter(width / 2, height / 2);
         for (Piece p : board.pieces)
@@ -128,7 +137,11 @@ public class OnlineChess extends ApplicationAdapter {
             a.dispose();
     }
 
-    public void move(int x, int y, int x1, int y1) throws RemoteException {
-        board.getPiece(x, y).move(x1, y1, board);
+    private void moveFoe(Move move) {
+        board.getPiece(move.getX1(), 7 - move.getY1()).move(move.getX2(), 7 - move.getY2(), board);
+    }
+
+    public void move(Move move) throws RemoteException {
+        board.getPiece(move.getX1(), move.getY1()).move(move.getX2(), move.getY2(), board);
     }
 }

@@ -1,43 +1,42 @@
 package com.rextuz.chess.server;
 
-import java.io.InputStream;
-import java.net.Socket;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MatchServer extends Thread {
+public class MatchServer extends UnicastRemoteObject implements MatchServerInterface {
+    private List<Move> moves = new ArrayList<Move>();
+    private int PORT;
 
-    private Socket s;
-
-    public MatchServer(Socket s) {
-        this.s = s;
-        start();
+    public MatchServer(int port) throws Exception {
+        PORT = port;
     }
 
-    @Override
-    public void run() {
-        register();
-        while (true) {
-            try {
-                InputStream is = s.getInputStream();
-                byte buf[] = new byte[64 * 1024];
-                is.read(buf);
-                Move move = MoveOrder.toObject(buf);
-                Socket destSocket = MatchServerMain.users.get(move.getName());
-                destSocket.getOutputStream().write(buf);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public void start() {
+        try {
+            Registry registry = LocateRegistry.createRegistry(PORT);
+            registry.bind("MatchServer", this);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void register() {
-        try {
-            InputStream is = s.getInputStream();
-            byte buf[] = new byte[64 * 1024];
-            int r = is.read(buf);
-            String name = new String(buf, 0, r);
-            MatchServerMain.users.put(name, s);
-        } catch (Exception e) {
+    @Override
+    public void move(Move move) throws RemoteException {
+        moves.add(move);
+    }
 
+    @Override
+    public Move getMove(String name) throws RemoteException {
+        while (true) {
+            for (Move move : moves)
+                if (move.getName().equals(name)) {
+                    moves.remove(move);
+                    return move;
+                }
         }
     }
 }

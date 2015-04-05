@@ -16,4 +16,6 @@ public interface AuthServerInterface extends Remote {
 
     boolean disconnect(String name) throws RemoteException;
 
+    void remove(String name) throws RemoteException;
+
 }

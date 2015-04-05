@@ -1,6 +1,5 @@
 package com.rextuz.chess;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,37 +20,63 @@ public class Board extends UnicastRemoteObject {
     private Texture texture;
 
     public Board(String color) throws RemoteException {
-        Gdx.app.log("AssetPath", Gdx.files.internal("assets/chess_board.png").file().getAbsolutePath());
-        texture = new Texture("assets/chess_board.png");
+        if (color.equals("white"))
+            texture = new Texture("assets/chess_board.png");
+        else
+            texture = new Texture("assets/chess_board_black.png");
         sprite = new Sprite(texture);
 
         this.color = color;
+        String foeColor = color.equals("white") ? "black" : "white";
 
-        pieces.add(new Rook(0, 0, "white", this));
-        pieces.add(new Rook(7, 0, "white", this));
-        pieces.add(new Knight(1, 0, "white", this));
-        pieces.add(new Knight(6, 0, "white", this));
-        pieces.add(new Bishop(2, 0, "white", this));
-        pieces.add(new Bishop(5, 0, "white", this));
-        pieces.add(new Queen(3, 0, "white", this));
-        pieces.add(new King(4, 0, "white", this));
+        pieces.add(new Rook(0, 0, color, this));
+        pieces.add(new Rook(7, 0, color, this));
+        pieces.add(new Knight(1, 0, color, this));
+        pieces.add(new Knight(6, 0, color, this));
+        pieces.add(new Bishop(2, 0, color, this));
+        pieces.add(new Bishop(5, 0, color, this));
+        pieces.add(new Queen(3, 0, color, this));
+        pieces.add(new King(4, 0, color, this));
         for (int x = 0, y = 1; x < 8; x++)
-            pieces.add(new Pawn(x, y, "white", this));
+            pieces.add(new Pawn(x, y, color, this));
 
-        pieces.add(new Rook(0, 7, "black", this));
-        pieces.add(new Rook(7, 7, "black", this));
-        pieces.add(new Knight(1, 7, "black", this));
-        pieces.add(new Knight(6, 7, "black", this));
-        pieces.add(new Bishop(2, 7, "black", this));
-        pieces.add(new Bishop(5, 7, "black", this));
-        pieces.add(new Queen(3, 7, "black", this));
-        pieces.add(new King(4, 7, "black", this));
+        pieces.add(new Rook(0, 7, foeColor, this));
+        pieces.add(new Rook(7, 7, foeColor, this));
+        pieces.add(new Knight(1, 7, foeColor, this));
+        pieces.add(new Knight(6, 7, foeColor, this));
+        pieces.add(new Bishop(2, 7, foeColor, this));
+        pieces.add(new Bishop(5, 7, foeColor, this));
+        pieces.add(new Queen(3, 7, foeColor, this));
+        pieces.add(new King(4, 7, foeColor, this));
         for (int x = 0, y = 6; x < 8; x++)
-            pieces.add(new Pawn(x, y, "black", this));
+            pieces.add(new Pawn(x, y, foeColor, this));
     }
 
-    public void setSize(float size) {
-        sprite.setSize(size, size);
+    public static void log(Object s) {
+        try {
+            System.out.println(s.toString());
+        } catch (Exception e) {
+            System.out.println("null");
+        }
+    }
+
+    public static String log(float x, float y) {
+        String s = "(" + x + ", " + y + ")";
+        System.out.println(s);
+        return s;
+    }
+
+    public static void log(Piece p) {
+        System.out.println("Name: " + p.getClass().getSimpleName());
+        System.out.println("Color: " + p.getColor());
+        System.out.println("Place: " + log(p.getX(), p.getY()));
+        System.out.print("Moves: ");
+        if (!p.moves().isEmpty())
+            for (Available a : p.moves())
+                System.out.print("(" + a.getX() + ", " + a.getY() + ") ");
+        else
+            System.out.print("none");
+        System.out.println();
     }
 
     public boolean cellEmpty(int x, int y) {
@@ -93,41 +118,20 @@ public class Board extends UnicastRemoteObject {
         return sprite.getWidth();
     }
 
-    public static void log(Object s) {
-        try {
-            System.out.println(s.toString());
-        } catch (Exception e) {
-            System.out.println("null");
-        }
-    }
-
-    public static String log(float x, float y) {
-        String s = "(" + x + ", " + y + ")";
-        System.out.println(s);
-        return s;
-    }
-
-    public static void log(Piece p) {
-        System.out.println("Name: " + p.getClass().getSimpleName());
-        System.out.println("Color: " + p.getColor());
-        System.out.println("Place: " + log(p.getX(), p.getY()));
-        System.out.print("Moves: ");
-        if (!p.moves().isEmpty())
-            for (Available a : p.moves())
-                System.out.print("(" + a.getX() + ", " + a.getY() + ") ");
-        else
-            System.out.print("none");
-        System.out.println();
+    public void setSize(float size) {
+        sprite.setSize(size, size);
     }
 
     public int getVirtX(float x) {
+        x -= sprite.getX();
         int a = (int) sprite.getWidth() / 8;
         return (int) x / a;
     }
 
     public int getVirtY(float y) {
+        y -= sprite.getY();
         int a = (int) sprite.getHeight() / 8;
-        return (int) y / a - 2;
+        return (int) y / a;
     }
 
     public void render(SpriteBatch batch) {
