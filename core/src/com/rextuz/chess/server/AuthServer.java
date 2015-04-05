@@ -1,6 +1,5 @@
 package com.rextuz.chess.server;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -10,17 +9,18 @@ import java.util.Random;
 
 public class AuthServer extends UnicastRemoteObject implements AuthServerInterface {
     private static final long serialVersionUID = 1L;
+    public static Registry registry;
     private static int PORT;
     private Users users = new Users();
     private Users searching = new Users();
 
-    public AuthServer(int port) throws IOException {
+    public AuthServer(int port) throws Exception {
         PORT = port;
     }
 
     public boolean start() {
         try {
-            Registry registry = LocateRegistry.createRegistry(PORT);
+            registry = LocateRegistry.createRegistry(PORT);
             registry.bind("OnlineChess", this);
         } catch (Exception e) {
             return false;
@@ -69,6 +69,11 @@ public class AuthServer extends UnicastRemoteObject implements AuthServerInterfa
             foe = searching.getFoe(name);
         }
         return foe;
+    }
+
+    @Override
+    public void remove(String name) {
+        searching.remove(name);
     }
 
 }
