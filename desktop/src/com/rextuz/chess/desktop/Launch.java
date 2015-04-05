@@ -11,7 +11,7 @@ public class Launch {
 		config.title = "Title";
 		config.height = 800;
 		config.width = 480;
-		new LwjglApplication(new OnlineChess("white", "Rextuz", "FOE"), config);
+		new LwjglApplication(new OnlineChess("white", "Rextuz", "FOE", "rextuz-pc", 4242), config);
 	}
 
 }

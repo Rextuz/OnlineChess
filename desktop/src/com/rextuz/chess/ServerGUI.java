@@ -1,6 +1,7 @@
 package com.rextuz.chess;
 
 import com.rextuz.chess.server.AuthServer;
+import com.rextuz.chess.server.MatchServerMain;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +42,7 @@ public class ServerGUI extends JFrame {
                     try {
                         int port = Integer.parseInt(portTextField.getText());
                         AuthServer server = new AuthServer(port);
+                        new MatchServerMain(port + 1);
                         if (!server.start())
                             JOptionPane.showMessageDialog(getContentPane(), "Server failed to start. Try changing port");
                         else {
