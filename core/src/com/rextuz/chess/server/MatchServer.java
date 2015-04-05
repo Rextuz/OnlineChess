@@ -1,35 +1,43 @@
 package com.rextuz.chess.server;
 
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+import java.io.InputStream;
+import java.net.Socket;
 
-import com.rextuz.chess.Board;
+public class MatchServer extends Thread {
 
-public class MatchServer extends UnicastRemoteObject implements
-		MatchServerInterface {
-	private static final long serialVersionUID = 1L;
+    private Socket s;
 
-	public MatchServer() throws RemoteException {
-	}
+    public MatchServer(Socket s) {
+        this.s = s;
+        start();
+    }
 
-	boolean thinking;
+    @Override
+    public void run() {
+        register();
+        while (true) {
+            try {
+                InputStream is = s.getInputStream();
+                byte buf[] = new byte[64 * 1024];
+                is.read(buf);
+                Move move = MoveOrder.toObject(buf);
+                Socket destSocket = MatchServerMain.users.get(move.getName());
+                destSocket.getOutputStream().write(buf);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	@Override
-	public void move(String user, Board board, int x, int y, int x1, int y1)
-			throws RemoteException {
-		board.getPiece(x, y).move(x1, y1, board);
-	}
+    private void register() {
+        try {
+            InputStream is = s.getInputStream();
+            byte buf[] = new byte[64 * 1024];
+            int r = is.read(buf);
+            String name = new String(buf, 0, r);
+            MatchServerMain.users.put(name, s);
+        } catch (Exception e) {
 
-	@Override
-	public void wait(String user) throws RemoteException {
-		thinking = true;
-		while (thinking) {
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
+        }
+    }
 }

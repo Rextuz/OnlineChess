@@ -12,20 +12,22 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.*;
 
 public class MainGUI extends JFrame {
 
-    AuthServerInterface stub;
+    private AuthServerInterface stub;
 
-    JTextField addressTextField;
-    JButton connectButton;
-    JLabel statusLabel2;
-    JTextField usernameTextField;
-    JButton usernameButton;
-    JPanel loadingPanel;
-    JLabel progressInfo;
-    JProgressBar progressBar;
+    private JTextField addressTextField;
+    private JButton connectButton;
+    private JLabel statusLabel2;
+    private JTextField usernameTextField;
+    private JButton usernameButton;
+    private JPanel loadingPanel;
+    private JLabel progressInfo;
+    private JProgressBar progressBar;
+
+    private String hostname;
+    private int port;
 
     public MainGUI() {
         super("OnlineChess client");
@@ -48,8 +50,8 @@ public class MainGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String host = addressTextField.getText();
                 String[] array1 = host.split(":");
-                String hostname = array1[0];
-                int port = Integer.parseInt(array1[1]);
+                hostname = array1[0];
+                port = Integer.parseInt(array1[1]);
                 try {
                     Registry registry = LocateRegistry.getRegistry(hostname, port);
                     stub = (AuthServerInterface) registry.lookup("OnlineChess");
@@ -165,8 +167,9 @@ public class MainGUI extends JFrame {
                             config.title = "Online Chess";
                             config.height = 800;
                             config.width = 480;
-                            new LwjglApplication(new OnlineChess("white", myName, foe),
+                            new LwjglApplication(new OnlineChess("white", myName, foe, hostname, port),
                                     config);
+
                         }
                         Thread.sleep(1000);
                     } while (!found);
