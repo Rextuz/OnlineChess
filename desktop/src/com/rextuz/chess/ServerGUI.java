@@ -1,7 +1,6 @@
 package com.rextuz.chess;
 
-import com.rextuz.chess.server.AuthServer;
-import com.rextuz.chess.server.MatchServer;
+import com.rextuz.chess.server.AuthServerSocket;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +17,10 @@ public class ServerGUI extends JFrame {
     JLabel addressLabel;
     JLabel portLabel;
     JPanel infoPanel;
+
+    private AuthServerSocket server;
+
+    private boolean authRunning;
 
     public ServerGUI() {
         super("OnlineChess server");
@@ -40,10 +43,29 @@ public class ServerGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        int port = Integer.parseInt(portTextField.getText());
-                        AuthServer server = new AuthServer(port);
-                        MatchServer matchServer = new MatchServer(port + 1);
-                        matchServer.start();
+                        if (!authRunning) {
+                            int port = Integer.parseInt(portTextField.getText());
+                            server = new AuthServerSocket(port);
+                            server.start();
+                            statusLabel2.setText("running");
+                            statusLabel2.setForeground(Color.green);
+                            infoPanel.setVisible(true);
+                            authRunning = true;
+                            startButton.setText("Stop");
+                        } else {
+                            server.terminate();
+                            statusLabel2.setText("idle");
+                            statusLabel2.setForeground(Color.gray);
+                            infoPanel.setVisible(false);
+                            authRunning = true;
+                            authRunning = false;
+                            startButton.setText("Start");
+                        }
+                        //AuthServer server = new AuthServer(port);
+                        //new MatchServerSocket(port + 1);
+                        // MatchServer matchServer = new MatchServer(port + 1);
+                        //matchServer.start();
+                        /*
                         if (!server.start())
                             JOptionPane.showMessageDialog(getContentPane(), "Server failed to start. Try changing port");
                         else {
@@ -51,7 +73,7 @@ public class ServerGUI extends JFrame {
                             statusLabel2.setForeground(Color.green);
                             startButton.setEnabled(false);
                             infoPanel.setVisible(true);
-                        }
+                        }*/
                     } catch (Exception e1) {
                         JOptionPane.showMessageDialog(getContentPane(), "Incorrect port");
                     }
