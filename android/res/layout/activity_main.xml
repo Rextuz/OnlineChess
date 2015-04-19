@@ -1,18 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
-              android:gravity="center_horizontal"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              tools:context="com.rextuz.chess.android.MainActivity">
+              android:layout_height="match_parent">
 
-    <EditText
+    <FrameLayout
+            android:id="@+id/connectLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/serverEdit" android:layout_gravity="center_horizontal" android:text="rextuz-pc:4242"/>
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Server address"
+                    android:id="@+id/serverTextView" android:layout_gravity="center_horizontal"/>
+            <EditText
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/addressEditText" android:layout_gravity="center_horizontal" android:text="192.168.1.42:4242"/>
+            <Button
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Connect"
+                    android:id="@+id/connectButton" android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+    </FrameLayout>
+    <FrameLayout
+            android:id="@+id/loginLayout"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Pick a nickname"
+                    android:id="@+id/nicknameTextView"/>
+            <EditText
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/nicknameEditText" android:text="John Smith"/>
+            <Button
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Login &amp; play"
+                    android:id="@+id/loginButton"/>
+        </LinearLayout>
+    </FrameLayout>
     <Button
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Connect"
-            android:id="@+id/connectButton"/>
+            android:text="Server"
+            android:id="@+id/serverButton" android:layout_gravity="center_horizontal"/>
 </LinearLayout>
