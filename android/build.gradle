@@ -1,6 +1,6 @@
 android {
     buildToolsVersion "21.1.2"
-    compileSdkVersion 21
+    compileSdkVersion 22
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -63,7 +63,7 @@ task run(type: Exec) {
     }
 
     def adb = path + "/platform-tools/adb"
-    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.rextuz.chess.android/com.rextuz.chess.android.AndroidLauncher'
+    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.rextuz.onlinechess.android/com.rextuz.onlinechess.android.AndroidLauncher'
 }
 
 // sets up the Android Eclipse project, using the old Ant based build.
