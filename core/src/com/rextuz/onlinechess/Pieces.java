@@ -22,6 +22,12 @@ public class Pieces extends ArrayList<Piece> {
                 return p;
         return null;
     }
+    
+    public void remove(int x, int y) {
+    	for (Piece p : this)
+    		if (p.getX() == x && p.getY() == y)
+    			remove(p);
+    }
 
     public boolean isNull(int x, int y) {
         return get(x, y) == null;
