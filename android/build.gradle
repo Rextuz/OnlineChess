@@ -63,7 +63,7 @@ task run(type: Exec) {
     }
 
     def adb = path + "/platform-tools/adb"
-    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.rextuz.onlinechess.android/com.rextuz.onlinechess.android.AndroidLauncher'
+    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.rextuz.chess.android/com.rextuz.chess.android.AndroidLauncher'
 }
 
 // sets up the Android Eclipse project, using the old Ant based build.
