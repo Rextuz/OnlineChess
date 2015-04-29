@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.rextuz.onlinechess.Board;
 import com.rextuz.onlinechess.OnlineChess;
-import com.rextuz.onlinechess.anim.Available;
 
 public class Piece implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -27,15 +26,28 @@ public class Piece implements Serializable {
 		this.size = board.getSize() / 8;
 	}
 
-	public List<Available> moves() {
+	public List<Available> getMoves() {
 		List<Available> list = new ArrayList<Available>();
 		return list;
 	}
-	
+
+	public List<Available> getEnemyMoves() {
+		List<Available> list = getMoves();
+		List<Available> newList = new ArrayList<Available>();
+		for (Available a : list)
+			newList.add(new Available(a.getX(), 7 - a.getY(), board, a.getA()));
+		return newList;
+	}
+
 	public void move(int new_x, int new_y, Board board) {
 		Piece target = board.getPiece(new_x, new_y);
 		if (target != null)
 			board.pieces.remove(target);
+		this.x = new_x;
+		this.y = new_y;
+	}
+
+	public void safeMove(int new_x, int new_y, Board board) {
 		this.x = new_x;
 		this.y = new_y;
 	}
