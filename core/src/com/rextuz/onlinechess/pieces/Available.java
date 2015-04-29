@@ -1,8 +1,7 @@
-package com.rextuz.onlinechess.anim;
+package com.rextuz.onlinechess.pieces;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.rextuz.onlinechess.Board;
-import com.rextuz.onlinechess.pieces.Piece;
 
 public class Available extends Piece {
 	private static final long serialVersionUID = 1L;
@@ -27,5 +26,11 @@ public class Available extends Piece {
 
 	public int[] getCoords() {
 		return new int[] { x, y };
+	}
+
+	public int getA() {
+		if (offencive)
+			return 1;
+		return 0;
 	}
 }

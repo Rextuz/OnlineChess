@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.rextuz.onlinechess.Board;
-import com.rextuz.onlinechess.anim.Available;
 
 public class King extends Piece {
 	private static final long serialVersionUID = 1L;
@@ -16,7 +15,7 @@ public class King extends Piece {
 	}
 
 	@Override
-	public List<Available> moves() {
+	public List<Available> getMoves() {
 		List<Available> list = new ArrayList<Available>();
 
 		List<int[]> moves = new ArrayList<int[]>();

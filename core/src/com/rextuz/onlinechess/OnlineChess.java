@@ -6,10 +6,13 @@ import java.util.List;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.rextuz.onlinechess.anim.Available;
+import com.rextuz.onlinechess.pieces.Available;
 import com.rextuz.onlinechess.pieces.Bishop;
+import com.rextuz.onlinechess.pieces.King;
 import com.rextuz.onlinechess.pieces.Knight;
 import com.rextuz.onlinechess.pieces.Pawn;
 import com.rextuz.onlinechess.pieces.Piece;
@@ -20,23 +23,30 @@ import com.rextuz.onlinechess.server.Move;
 
 public class OnlineChess extends ApplicationAdapter {
 	public static Board board;
+	private Helper helper;
+
 	public static SpriteBatch batch;
+	private BitmapFont font;
+
 	private String myColor;
 	private String foeColor;
+	private Pieces backup;
 	private Piece pS;
+	private Piece promotion;
 	private String myName, foeName;
 	private boolean myTurn;
-	private Pieces backup;
 	private Pawn toPromote;
-	private Piece promotion;
-	private Helper helper;
 	private Move promotionMove;
 
-	public OnlineChess(String my_color, String myName, String foeName,
+	private boolean check;
+	private boolean checkmate;
+	private boolean stalemate;
+
+	public OnlineChess(String myColor, String myName, String foeName,
 			Helper helper) {
-		myTurn = my_color.equals("white");
-		this.myColor = my_color;
-		this.foeColor = my_color.equals("black") ? "white" : "black";
+		myTurn = myColor.equals("white");
+		this.myColor = myColor;
+		this.foeColor = myColor.equals("black") ? "white" : "black";
 		this.myName = myName;
 		this.foeName = foeName;
 		this.helper = helper;
@@ -76,6 +86,8 @@ public class OnlineChess extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(new GameAdapter());
 		batch = new SpriteBatch();
 		board = new Board(myColor);
+		font = new BitmapFont();
+		generateFlags();
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		new Thread(new Runnable() {
 			@Override
@@ -144,13 +156,16 @@ public class OnlineChess extends ApplicationAdapter {
 	public void render() {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		batch.begin();
 		board.render(batch);
 		for (Piece p : board.pieces)
 			p.render(board);
 		for (Available a : board.moves)
 			a.render(board);
+		renderHUD();
 		batch.end();
+
 		postPromotion();
 	}
 
@@ -199,26 +214,15 @@ public class OnlineChess extends ApplicationAdapter {
 		@Override
 		public boolean touchDown(int x, int y, int pointer, int button) {
 			y = Gdx.graphics.getHeight() - y;
+			generateFlags();
 			if (myTurn) {
 				if (pS == null) {
 					pS = board.getPieceByReal(x, y);
 					if (pS != null) {
 						if (pS.getColor().equals(myColor)) {
-							List<Available> moves = pS.moves();
-							Piece p = board.check(myColor, board.pieces);
-							if (p != null) {
-								List<Available> new_moves = new ArrayList<Available>();
-								for (Available a : moves) {
-									if (board.check(myColor,
-											new Rook(a.getX(), a.getY(),
-													myColor, board)) == null)
-										moves.add(a);
-								}
-								moves = new_moves;
-							}
-							if (moves.isEmpty())
-								pS = null;
-							board.moves = moves;
+							if (checkCheckmate(board, myColor))
+								System.out.println("Checkmate");
+							board.moves = filterMoves(board, pS);
 						} else
 							pS = null;
 					}
@@ -232,11 +236,9 @@ public class OnlineChess extends ApplicationAdapter {
 							pS.move(x2, y2, board);
 							helper.move(new Move(foeName, x1, y1, x2, y2));
 							Pawn p = checkPromotion();
-							if (p != null) {
-								print(p);
+							if (p != null)
 								promote(p);
-							} else
-								myTurn = false;
+							myTurn = false;
 						}
 					pS = null;
 					board.moves.clear();
@@ -259,6 +261,82 @@ public class OnlineChess extends ApplicationAdapter {
 			}
 			return true;
 		}
+	}
+
+	private void generateFlags() {
+		checkmate = checkCheckmate(board, myColor);
+		check = checkCheck(board, myColor);
+		stalemate = checkStalemate(board, myColor);
+
+	}
+
+	public void renderHUD() {
+		Color color = font.getColor();
+		font.setColor(Color.RED);
+		int x = 2;
+		int y = Gdx.graphics.getHeight() - 30;
+		if (checkmate)
+			font.draw(batch, "Checkmate", x, y);
+		else if (check)
+			font.draw(batch, "Check", x, y);
+		else if (stalemate)
+			font.draw(batch, "Stalemate", x, y);
+		if (myTurn) {
+			font.setColor(Color.GREEN);
+			font.draw(batch, "Your turn", x, y);
+		} else
+			font.draw(batch, "Opponent's turn", x, y);
+		font.setColor(color);
+	}
+
+	public static boolean checkCheck(Board board, String color) {
+		String foeColor = color.equals("black") ? "white" : "black";
+		List<Available> moves = board.getEnemyMoves(foeColor);
+		System.out.println("For black:");
+		for (Available a : moves)
+			System.out.println("(" + a.getX() + ", " + a.getY() + ")");
+		King king = board.getKing(color);
+		for (Available a : moves)
+			if (a.getX() == king.getX() && a.getY() == king.getY())
+				return true;
+		return false;
+	}
+
+	public static List<Available> filterMoves(Board board, Piece p) {
+		List<Available> newList = new ArrayList<Available>();
+		for (Available a : p.getMoves())
+			if (!moveGrantsCheck(board, p, a))
+				newList.add(a);
+		return newList;
+	}
+
+	public static boolean moveGrantsCheck(Board board, Piece p, Available a) {
+		boolean result = false;
+		int oldX = p.getX(), oldY = p.getY();
+		p.safeMove(a.getX(), a.getY(), board);
+		if (checkCheck(board, p.getColor()))
+			result = true;
+		p.safeMove(oldX, oldY, board);
+		if (result)
+			System.out.println("Move grants check");
+		return result;
+	}
+
+	public static boolean checkCheckmate(Board board, String color) {
+		if (checkCheck(board, color)) {
+			for (Piece p : board.pieces)
+				if (p.getColor().equals(color))
+					if (filterMoves(board, p).isEmpty())
+						return true;
+		}
+		return false;
+	}
+
+	public static boolean checkStalemate(Board board, String color) {
+		if (checkCheck(board, color))
+			if (!checkCheckmate(board, color))
+				return true;
+		return false;
 	}
 
 }

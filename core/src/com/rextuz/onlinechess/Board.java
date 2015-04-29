@@ -6,7 +6,7 @@ import java.util.List;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.rextuz.onlinechess.anim.Available;
+import com.rextuz.onlinechess.pieces.Available;
 import com.rextuz.onlinechess.pieces.Bishop;
 import com.rextuz.onlinechess.pieces.King;
 import com.rextuz.onlinechess.pieces.Knight;
@@ -61,11 +61,11 @@ public class Board {
 		return s;
 	}
 
-	public List<Available> moves(String color) {
+	public List<Available> getMoves(String color) {
 		List<Available> moves = new ArrayList<Available>();
 		for (Piece p : pieces)
 			if (p.getColor().equals(color))
-				for (Available a : p.moves())
+				for (Available a : p.getEnemyMoves())
 					moves.add(a);
 		return moves;
 	}
@@ -92,28 +92,7 @@ public class Board {
 					return p;
 		return null;
 	}
-	
-	public Piece check(String myColor, Piece p) {
-		Pieces pieces = new Pieces(this.pieces);
-		pieces.add(p);
-		return check(myColor, pieces);
-	}
 
-	public Piece check(String myColor, Pieces pieces) {
-		String foeColor = myColor.equals("white") ? "black" : "white";
-		for (Piece p : pieces)
-			if (p.getColor().equals(foeColor)) {
-				List<Available> moves = p.moves();
-				King k = getKing(myColor);
-				for (Available a : moves) {
-					if (a.getX() == k.getX() && a.getY() == k.getY()) {
-						return p;
-					}
-				}
-			}
-		return null;
-	}
-	
 	public Piece getPiece(int x, int y) {
 		return pieces.get(x, y);
 	}
@@ -164,6 +143,15 @@ public class Board {
 
 	public void dispose() {
 		texture.dispose();
+	}
+
+	public List<Available> getEnemyMoves(String foeColor) {
+		List<Available> moves = new ArrayList<Available>();
+		for (Piece p : pieces)
+			if (p.getColor().equals(foeColor))
+				for (Available a : p.getEnemyMoves())
+					moves.add(a);
+		return moves;
 	}
 
 }
