@@ -44,9 +44,9 @@ public class Helper implements Serializable {
 		Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
-				new Message("login", name).send(s);
+				new Message("login " + name).send(s);
 				Message message = Message.receiveMessage(s);
-				return message.getFlag();
+				return message.getBoolean();
 			}
 		});
 		executor.shutdown();
@@ -54,9 +54,9 @@ public class Helper implements Serializable {
 	}
 
 	public boolean disconnect(String name) {
-		new Message("disconnect", name).send(s);
+		new Message("disconnect " + name).send(s);
 		Message message = Message.receiveMessage(s);
-		return message.getFlag();
+		return message.getBoolean();
 	}
 
 	public List<String> find() {
@@ -66,29 +66,30 @@ public class Helper implements Serializable {
 	}
 
 	public String search(String myName) {
-		new Message("search", myName).send(s);
+		new Message("search " + myName).send(s);
 		Message message = Message.receiveMessage(s);
-		return message.getArg();
+		return message.getArg(1);
 	}
 
 	public String connect(String myName) {
-		new Message("connect", myName).send(s);
+		new Message("connect " + myName).send(s);
 		Message message = Message.receiveMessage(s);
-		return message.getArg();
+		return message.getArg(1);
 	}
 
 	public void remove(String myName) {
-		new Message("remove", myName).send(s);
+		new Message("remove " + myName).send(s);
 		Message.receiveMessage(s);
 	}
 
 	public void move(Move move) {
-		new Message("move", move).send(s);
+		String r = "move";
+		new Message(r, move).send(s);
 		Message.receiveMessage(s);
 	}
 
 	public Move getMove(String myName) {
-		new Message("getMove", myName).send(s);
+		new Message("getMove " + myName).send(s);
 		Message message = Message.receiveMessage(s);
 		return message.getMove();
 	}

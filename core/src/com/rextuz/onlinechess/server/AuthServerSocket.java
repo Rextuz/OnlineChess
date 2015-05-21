@@ -111,7 +111,7 @@ public class AuthServerSocket extends Thread {
 				try {
 					byte[] bytes = new byte[64 * 1024];
 					s.getInputStream().read(bytes);
-					Message m = Message.recover(bytes);
+					Message m = new Message(new String(bytes));
 					dealWithIt(m);
 				} catch (Exception e) {
 					running = false;
@@ -120,31 +120,30 @@ public class AuthServerSocket extends Thread {
 		}
 
 		private void dealWithIt(Message m) {
-			String command = m.getCommand();
-			String arg = m.getArg();
-			if (command.equals("login")) {
-				boolean f = server.login(arg);
-				new Message("login", f).send(s);
-			} else if (command.equals("find")) {
+			String command = m.getArg(0);
+			if (command.equals("login"))
+				new Message("login " + server.login(m.getArg(1))).send(s);
+			else if (command.charAt(0) == 'f') {
+				String result = "find ";
 				List<String> list = server.find();
-				new Message("find", list).send(s);
+				result += list.size();
+				for (String name : list)
+					result += " " + name;
+				new Message(result).send(s);
 			} else if (command.equals("disconnect")) {
-				boolean f = server.disconnect(arg);
-				new Message("disconnect", f).send(s);
+				new Message("disconnect " + server.disconnect(m.getArg(1))).send(s);
 			} else if (command.equals("connect")) {
-				String str = server.connect(arg);
-				new Message("connect", str).send(s);
+				new Message("connect " + server.connect(m.getArg(1))).send(s);
 			} else if (command.equals("search")) {
-				String str = server.search(arg);
-				new Message("search", str).send(s);
+				new Message("search " + server.search(m.getArg(1))).send(s);
 			} else if (command.equals("remove")) {
-				server.remove(arg);
+				server.remove(m.getArg(1));
 				new Message("remove").send(s);
 			} else if (command.equals("move")) {
 				server.move(m.getMove());
 				new Message("move").send(s);
 			} else if (command.equals("getMove")) {
-				Move move = server.getMove(arg);
+				Move move = server.getMove(m.getArg(1));
 				new Message("getMove", move).send(s);
 			}
 		}

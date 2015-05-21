@@ -52,12 +52,6 @@ public class OnlineChess extends ApplicationAdapter {
 		this.helper = helper;
 	}
 
-	public static void print(Piece p) {
-		System.out.println(p.getClass().getSimpleName());
-		System.out.println("Color=" + p.getColor() + "; Place=(" + p.getX()
-				+ ", " + p.getY() + ")");
-	}
-
 	private void promote(Pawn p) {
 		toPromote = p;
 		backup = new Pieces(board.pieces);
@@ -292,9 +286,6 @@ public class OnlineChess extends ApplicationAdapter {
 	public static boolean checkCheck(Board board, String color) {
 		String foeColor = color.equals("black") ? "white" : "black";
 		List<Available> moves = board.getEnemyMoves(foeColor);
-		System.out.println("For black:");
-		for (Available a : moves)
-			System.out.println("(" + a.getX() + ", " + a.getY() + ")");
 		King king = board.getKing(color);
 		for (Available a : moves)
 			if (a.getX() == king.getX() && a.getY() == king.getY())
@@ -317,8 +308,6 @@ public class OnlineChess extends ApplicationAdapter {
 		if (checkCheck(board, p.getColor()))
 			result = true;
 		p.safeMove(oldX, oldY, board);
-		if (result)
-			System.out.println("Move grants check");
 		return result;
 	}
 

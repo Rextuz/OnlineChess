@@ -1,0 +1,7 @@
+Package: onlinechess
+Version: 1.0
+Section: games
+Depends: openjdk-7-jre
+Architecture: all
+Maintainer: Max Kanushin
+Description: Online Chess game

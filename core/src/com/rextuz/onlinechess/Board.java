@@ -55,12 +55,6 @@ public class Board {
 			pieces.add(new Pawn(x, y, foeColor, this));
 	}
 
-	public static String log(float x, float y) {
-		String s = "(" + x + ", " + y + ")";
-		System.out.println(s);
-		return s;
-	}
-
 	public List<Available> getMoves(String color) {
 		List<Available> moves = new ArrayList<Available>();
 		for (Piece p : pieces)
