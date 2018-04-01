@@ -3,7 +3,7 @@ apply plugin: "com.android.application"
 configurations { natives }
 
 dependencies {
-    implementation project(":core")
+    implementation project(':core')
     implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
     natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
     natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
@@ -12,7 +12,7 @@ dependencies {
 
 android {
     buildToolsVersion '27.0.3'
-    compileSdkVersion 22
+    compileSdkVersion 27
     sourceSets.main {
         manifest.srcFile 'AndroidManifest.xml'
         java.srcDir 'src'
